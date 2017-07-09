@@ -1,0 +1,60 @@
+'use strict'
+
+/**
+ * DEBUG (optional)     - allows debug information logging
+ * ERROR (optional)     - allows error information logging
+ * BUCKET               - AWS S3 bucket to store file and metadata
+ * SLACK_INTEGRATOR_SNS - AWS SNS topic name to send Slack message processing information
+*/
+const {DEBUG, ERROR, BUCKET, SLACK_INTEGRATOR_SNS} = process.env
+
+const debug = (...args) => (DEBUG) ? console.log.apply(null, args) : null
+const error = (...args) => (ERROR) ? console.error.apply(null, args) : null
+
+exports.main = (data, aws, cb) => {
+  debug(`Event data:\n${JSON.stringify(data, null, 2)}`)
+  const {eventId, msg, file} = data
+
+  // TODO: add message processing: split by hash tag
+  const body = {eventId, msg, file, tags: []}
+
+  const options = {
+    Body: body,
+    Bucket: BUCKET,
+    Key: `${data.file.split('/').pop().split('.').shift()}.json`
+   }
+
+   const meta = `${options.Bucket}/${options.Key}`
+   debug(`Saving to: ${meta}`)
+
+   aws.s3.putObject(options, (err) => {
+     if (err) {
+       error(err)
+     } else {
+       debug(`Saved to: ${meta}`)
+     }
+
+     const notification = (err) ?  {eventId, err: err.message} : {eventId, file, meta}
+     exports._callSns(aws.sns, SLACK_INTEGRATOR_SNS, notification)
+     cb(err)
+   })
+}
+
+exports._callSns = (sns, topic, notification) => {
+  debug(`Sending ${JSON.stringify(notification, null, 2)} to topic: ${SLACK_INTEGRATOR_SNS}`)
+
+  const params = {
+    Message: JSON.stringify(notification),
+    TopicArn: topic
+  }
+
+  sns.publish(params, (err) => {
+    if (err) {
+      error(`Notification publish to ${topic} failed`)
+      error(err)
+      return
+    }
+
+    debug(`Notification successfully published to ${topic}`)
+  })
+}
