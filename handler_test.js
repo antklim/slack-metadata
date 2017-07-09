@@ -25,12 +25,12 @@ describe('Slack event metadata', () => {
       const sns = {publish}
 
       const expectedOptions = {
-        Body: {
+        Body: JSON.stringify({
           eventId: 'eventId',
           msg: 'message',
           file: 'test/file.jpg',
           tags: []
-        },
+        }),
         Bucket: 'test',
         Key: 'file.json'
       }
@@ -67,12 +67,12 @@ describe('Slack event metadata', () => {
       const sns = {publish}
 
       const expectedOptions = {
-        Body: {
+        Body: JSON.stringify({
           eventId: 'eventId',
           msg: 'message',
           file: 'test/file.jpg',
           tags: []
-        },
+        }),
         Bucket: 'test',
         Key: 'file.json'
       }

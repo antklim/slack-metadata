@@ -19,7 +19,7 @@ exports.main = (data, aws, cb) => {
   const body = {eventId, msg, file, tags: []}
 
   const options = {
-    Body: body,
+    Body: JSON.stringify(body),
     Bucket: BUCKET,
     Key: `${data.file.split('/').pop().split('.').shift()}.json`
    }
