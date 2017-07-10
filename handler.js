@@ -5,15 +5,16 @@
  * ERROR (optional)     - allows error information logging
  * BUCKET               - AWS S3 bucket to store file and metadata
  * SLACK_INTEGRATOR_SNS - AWS SNS topic name to send Slack message processing information
-*/
+ */
 const {DEBUG, ERROR, BUCKET, SLACK_INTEGRATOR_SNS} = process.env
 
 const debug = (...args) => (DEBUG) ? console.log.apply(null, args) : null
 const error = (...args) => (ERROR) ? console.error.apply(null, args) : null
 
+// data: {eventId, channel, url, msg, file}
 exports.main = (data, aws, cb) => {
   debug(`Event data:\n${JSON.stringify(data, null, 2)}`)
-  const {eventId, msg, file} = data
+  const {eventId,channel, msg, file} = data
 
   // TODO: add message processing: split by hash tag
   const body = {eventId, msg, file, tags: []}
@@ -34,7 +35,7 @@ exports.main = (data, aws, cb) => {
        debug(`Saved to: ${meta}`)
      }
 
-     const notification = (err) ?  {eventId, err: err.message} : {eventId, file, meta}
+     const notification = (err) ?  {eventId, channel, err: err.message} : {eventId, channel, file, meta}
      exports._callSns(aws.sns, SLACK_INTEGRATOR_SNS, notification)
      cb(err)
    })
