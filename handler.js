@@ -1,5 +1,7 @@
 'use strict'
 
+const findtags = require('find-hashtags')
+
 /**
  * DEBUG (optional)     - allows debug information logging
  * ERROR (optional)     - allows error information logging
@@ -16,8 +18,9 @@ exports.main = (data, aws, cb) => {
   debug(`Event data:\n${JSON.stringify(data, null, 2)}`)
   const {eventId,channel, msg, file} = data
 
-  // TODO: add message processing: split by hash tag
-  const body = {eventId, msg, file, tags: []}
+  const tags = (msg.indexOf('#') < 0) ? [] : findtags(msg)
+
+  const body = {eventId, msg, file, tags}
 
   const options = {
     Body: JSON.stringify(body),

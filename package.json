@@ -9,7 +9,8 @@
     "build": "gulp"
   },
   "dependencies": {
-    "aws-sdk": "^2.82.0"
+    "aws-sdk": "^2.82.0",
+    "find-hashtags": "^1.0.1"
   },
   "devDependencies": {
     "del": "^3.0.0",

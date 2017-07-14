@@ -20,16 +20,16 @@ describe('Slack event metadata', () => {
       const publish = sandbox.stub()
       publish.yields()
 
-      const data = {eventId: 'eventId', msg: 'message', file: 'test/file.jpg'}
+      const data = {eventId: 'eventId', msg: 'this is a #message with #hashtags', file: 'test/file.jpg'}
       const s3 = {putObject}
       const sns = {publish}
 
       const expectedOptions = {
         Body: JSON.stringify({
           eventId: 'eventId',
-          msg: 'message',
+          msg: 'this is a #message with #hashtags',
           file: 'test/file.jpg',
-          tags: []
+          tags: ['message', 'hashtags']
         }),
         Bucket: 'test',
         Key: 'file.json'
